@@ -1,0 +1,36 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity RANDOM is
+    port (
+        clk: in std_logic;             -- Reloj de entrada
+        rst: in std_logic;             -- Señal de reset
+        random_num: out unsigned(31 downto 0) -- Número aleatorio de 32 bits de salida
+    );
+end ENTITY;
+
+architecture Behavioral of RANDOM is
+    constant SEED_WIDTH: integer := 32;  -- Anchura del registro de semilla
+    constant RAND_WIDTH: integer := 32;  -- Anchura del número aleatorio generado
+    signal seed: unsigned(SEED_WIDTH - 1 downto 0); -- Registro de semilla interno
+
+    function LFSR(seed_in: unsigned(SEED_WIDTH - 1 downto 0)) return unsigned is
+        variable new_seed: unsigned(SEED_WIDTH - 1 downto 0) := seed_in;
+    begin
+        new_seed(SEED_WIDTH - 1 downto 0) := new_seed(SEED_WIDTH - 2 downto 0) & (new_seed(SEED_WIDTH - 1) xor new_seed(SEED_WIDTH - 2));
+        return new_seed(SEED_WIDTH - 1 downto 0);
+    end function;
+
+begin
+    process(clk, rst)
+    begin
+        if rst = '1' then
+            seed <= (others => '0');  -- Inicializar la semilla en cero cuando hay un reset
+        elsif rising_edge(clk) then
+            seed <= LFSR(seed);       -- Actualizar la semilla en cada flanco de subida del reloj
+        end if;
+    end process;
+
+    random_num <= seed(RAND_WIDTH - 1 downto 0); -- Salida del número aleatorio de RAND_WIDTH bits
+end Behavioral;

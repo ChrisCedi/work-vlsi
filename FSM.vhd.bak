@@ -1,0 +1,59 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+
+ENTITY FSM IS
+	PORT(CLK: IN STD_LOGIC;
+			R1, R2, R3, ENT; IN INTEGER RANGE 0 TO 999;
+			LEVEL: OUT INTEGER RANGE 1 TO 5;
+			TIEMPO: OUT INTEGER RANGE 1 TO 5);
+END ENTITY;
+
+ARCHITECTURE BEAS OF FSM IS
+TYPE EDOS IS (INI, E1, E2, E3, LOSE, WIN);
+SIGNAL PRES: EDOS := INI;
+BEGIN
+
+	PROCESS(ENTRADAS,CLK)
+	BEGIN
+		IF RISING_EDGE(CLK) THEN
+			CASE PRES IS
+				WHEN INI => 
+					R1 <= R1;
+					R2 <= R2;
+					R3 <= R3;
+					PRES <= E1;
+				WHEN E1 => 
+					LEVEL <= 1;
+					TIEMPO <= 5;
+					IF R1 = ENT THEN
+						PRES <= E2;
+					ELSE 
+						PRES <= LOSE;
+					END IF;
+					
+				WHEN E2 => 
+					LEVEL <= 2;
+					TIEMPO <= 3;
+					IF R2 = ENT THEN
+						PRES <= E3;
+					ELSE 
+						PRES <= LOSE;
+					END IF;
+				WHEN E3 =>
+					LEVEL <= 3;
+					TIEMPO <= 1;
+					IF R3 = ENT THEN
+						PRES <= WIN;
+					ELSE 
+						PRES <= LOSE;
+					END IF;
+				WHEN LOSE =>
+					LEVEL <= 5;
+				WHEN WIN =>
+					LEVEL <= 4;				
+				
+			END CASE;
+		END IF;
+	END PROCESS;
+
+END BEAS;

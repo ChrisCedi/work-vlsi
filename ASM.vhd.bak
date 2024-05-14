@@ -1,0 +1,55 @@
+
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+
+ENTITY ASM IS
+PORT(CLK: IN STD_LOGIC;
+		DATA: IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+      FLAG: IN STD_LOGIC;
+		LET, R1, R2: BUFFER STD_LOGIC_VECTOR(7 DOWNTO 0));
+END ASM;
+
+ARCHITECTURE CMJY OF ASM IS
+TYPE EDO IS (INI, EDO0, EDO1, DELAY);
+SIGNAL PRES: EDO := INI;
+SIGNAL AUX: INTEGER RANGE 0 TO 100000 := 0;
+BEGIN
+
+	PROCESS(FLAG, DATA, CLK)
+	BEGIN
+		IF RISING_EDGE(CLK) THEN
+			CASE PRES IS
+				WHEN INI => 
+					NUM <= "00000000";
+					PRES <= EDO0;
+					
+				WHEN EDO0 => 
+					NUM <=NUM;
+					R1 <= R1;
+					R2 <= R2;
+					IF FLAG = '1' THEN
+						PRES <= EDO1;
+						
+					ELSE 
+						PRES <= EDO0;
+					END IF;
+				WHEN EDO1 => 
+					NUM <= DATA;
+					R1 <= LET;
+					R2 <= R1;
+					PRES <= DELAY;
+				
+				WHEN DELAY =>
+					IF AUX = 50 THEN
+						AUX <= 0;
+						PRES <= EDO0;
+					ELSE
+					   AUX <= AUX + 1;
+						PRES <= DELAY;
+					END IF;
+			END CASE;
+			
+		END IF;
+	END PROCESS;
+
+END CMJY;
